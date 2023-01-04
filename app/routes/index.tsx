@@ -20,7 +20,7 @@ import { Topbar, Sidebar, Footer } from '../components/mainLayout';
 // import { Topbar, Sidebar, Footer, ThemeModeToggler } from '../components/mainLayout';
 
 import pages from '~/components/mainLayout/navigation';
-import { Form, Link, useLoaderData, useSearchParams } from '@remix-run/react';
+import { Form, Link, useActionData, useLoaderData, useSearchParams } from '@remix-run/react';
 import { Button, Card, FormControl, Grid, IconButton, Input, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Typography } from '@mui/material';
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -40,9 +40,10 @@ interface Props {
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {
-    const intentList = await HttpRequest("list_state", {})
+    const intentList = await HttpRequest("get_discussions", {})
+    // console.log(intentList)
 
-    return json({ intentList: intentList.report[0]});
+    return json({ "intentList": intentList.report[0]});
   } catch (error) {
     console.log(error)
     return json(error);
@@ -53,13 +54,26 @@ export const action: ActionFunction = async ({ request }) => {
 
   const formData = await request.formData();
   let data = Object.fromEntries(formData);
+  console.log(data)
 
-  return json({},{
+   json({},{
     headers: {
       "Set-Cookie": await selectedIntent.serialize(data),
     },
   });
+  return redirect('intents')   
 };
+
+
+// const UpdateFaq = (): JSX.Element => {
+//   const {data} = useLoaderData();
+
+//   return(
+//     <>
+//     {data && <pre>{JSON.stringify(data, null, 1)}</pre>}
+//     </>
+//   )
+// }
 
 
 const Main = ({
@@ -119,7 +133,7 @@ const Main = ({
 
 
         <Box bgcolor={'alternate.main'}>
-          {/* {data && <pre>{JSON.stringify(data, null, 1)}</pre>} */}
+          { intentList && <pre>{JSON.stringify(intentList, null, 1)}</pre>} 
           <Container maxWidth={800}>
             <Grid
               container
@@ -141,7 +155,7 @@ const Main = ({
             </Grid>
 
             <Card sx={{ p: { xs: 4, md: 6 } }}>
-              <Form method='post' action='?index'>
+              <Form method='post' action="intents">
                 <Grid
                   container
                   direction="column"
@@ -151,35 +165,38 @@ const Main = ({
                 >
                   <Grid item>
                     <FormControl fullWidth>
-                      <InputLabel id="demo-simple-select-label">View Point</InputLabel>
+                      <InputLabel id="demo-simple-select-label">Discussions</InputLabel>
                       <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={age}
-                        label="Age"
-                        name='label'
+                        label="topic_id"
+                        name='topic_id'
                         onChange={handleChange}
                       >
-                        <MenuItem value={10}>Ten</MenuItem>
+                        {intentList.map((item:any)=>(
+                          <MenuItem key={item.id} value={item.id}>{item.topic}</MenuItem>
+                        ))}
+                        {/* <MenuItem value={10}>Ten</MenuItem>
                         <MenuItem value={20}>Twenty</MenuItem>
-                        <MenuItem value={30}>Thirty</MenuItem>
+                        <MenuItem value={30}>Thirty</MenuItem> */}
                       </Select>
                     </FormControl>
                   </Grid>
 
                   <Grid item>
                     <FormControl fullWidth>
-                      <InputLabel id="demo-simple-select-label">Pitch</InputLabel>
+                      <InputLabel id="demo-simple-select-label">Group</InputLabel>
                       <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        name='answer'
+                        name='anchor_group_name'
                         // value={age}
                         label="Age"
                         // onChange={handleChange}
                       >
-                        <MenuItem value={10}>View Point</MenuItem>
-                        <MenuItem value={20}>Pitch</MenuItem>
+                        <MenuItem value={"viewpoint"}>View Point</MenuItem>
+                        <MenuItem value={"pitch"}>Pitch</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -192,7 +209,7 @@ const Main = ({
                       spacing={0}
                     >
                       <Button size={'large'} variant={'contained'} type={'submit'}>
-                        Update
+                        Get
                       </Button>
                     </Stack>
                   </Grid>
@@ -215,6 +232,7 @@ const Main = ({
   );
 };
 
+// export default UpdateFaq;
 export default Main;
 function httpPost(arg0: string, form: any) {
   throw new Error('Function not implemented.');
