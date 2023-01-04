@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid';
-import { Link, useLoaderData, useSubmit } from '@remix-run/react';
+import { Link as RouterLink, useLoaderData, useSubmit } from '@remix-run/react';
 import type { LoaderFunction} from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { HttpRequest } from '~/utils/httpRequest';
@@ -80,16 +80,14 @@ const FaqsIndex = (): JSX.Element => {
                 fontWeight: 700,
               }}
             >
-              Intents
+              Anchor Group
             </Typography>
           </Grid>
 
           <Grid item justifyContent='right' >
-            <Link to='/intents/new'>
-              <Button variant="contained" component="label">
-                New Intent
+              <Button variant="contained" component={RouterLink} to="/intents/new">
+                New Anchor Group
               </Button>
-            </Link>
           </Grid>
         </Grid>
 
@@ -121,11 +119,9 @@ const FaqsIndex = (): JSX.Element => {
               </Grid>
               <Grid item xs={2} >
                 <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 'auto' }}>
-                  <Link to={item.jid}>
-                    <Button variant="outlined" component="label">
+                    <Button variant="outlined" component={RouterLink} to={item.jid}>
                       Edit
                     </Button>
-                  </Link>
                   <IconButton color="primary" aria-label="delete" component="label" onClick={() => handleClickOpen(item.jid)}>
                     <DeleteIcon />
                   </IconButton>

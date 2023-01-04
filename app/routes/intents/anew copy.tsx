@@ -9,23 +9,28 @@ import Typography from '@mui/material/Typography';
 
 import Container from '~/components/Container';
 
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { ActionFunction, json, LoaderFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData, useSubmit } from "@remix-run/react";
 import { HttpRequest } from '~/utils/httpRequest';
-import { IconButton, Input, Stack } from '@mui/material';
+import { IconButton, Stack } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-
 import DeleteIcon from '@mui/icons-material/Delete';
-
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import { selectedIntent } from 'cookies.server';
 
+
+
+// export const action: ActionFunction = async ({ request }) => {
+
+//   const formData = await request.formData();
+//   let data = Object.fromEntries(formData);
+//   console.log(data)
+//   await HttpRequest("create_faq", data)
+
+
+
+//   return redirect('/intents');
+// };
 
 
 export const action: ActionFunction = async ({ request }) => {
@@ -67,67 +72,14 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   }
 }
 
-const UpdateFaq = (): JSX.Element => {
+
+
+const NewFaq = (): JSX.Element => {
+
   const {data, selectedIntent} = useLoaderData();
-  const submit = useSubmit();
-  // console.log(selectedIntent)
-
-
-  const [list, setlist] = useState(data.context.utterances)
-  const [intent, setIntent] = useState(data.context.name_of_intent)
-  const [openEditIntent, setOpenEditIntent] = useState(false)
-  const [openEditUtterance, setOpenEditUtterance] = useState(false)
-  const [openUtteranceDialog, setOpenUtteranceDialog] = useState(false)
-  const [openIntentDialog, setOpenIntentDialog] = useState(false)
   const [openNewUtterance, setOpenNewUtterance] = useState(false)
-  const [updateIntent, setUpdateIntent] = useState('')
-  const [updateUtteranceIdChange, setUpdateUtteranceIdChange] = useState('')
-  const [deleteUtteranceValue, setDeleteUtteranceValue] = useState('')
-  const [updateUtteranceValueChange, setUpdateUtteranceValueChange] = useState('')
   const [newUtteranceChange, setNewUtteranceChange] = useState('')
-
-
-  const handleIntentEdit = () => {
-    setOpenEditIntent(openEditIntent => !openEditIntent)
-  }
-
-  const handleIntentSave = () => {
-
-    let values = {
-      name_of_intent: updateIntent,
-      utterances: list,
-      id: data.jid
-    }
-    setIntent(updateIntent)
-    let formData = new FormData();
-    formData.append('updateIntent', JSON.stringify(values))
-    submit(formData, { action: `/intents/${data.jid}`, method: 'post' })
-
-    setOpenEditIntent(false)
-  }
-
-
-  const handleUtteranceEdit = (id: any) => {
-    console.log(id)
-    setUpdateUtteranceIdChange(id)
-    setOpenEditUtterance(openEditUtterance => !openEditUtterance)
-  }
-
-  const handleUtteranceSave = () => {
-    list.splice(updateUtteranceIdChange, 1, updateUtteranceValueChange)
-    let newList = [...list]
-
-    let values = {
-      name_of_intent: updateIntent,
-      utterances: newList,
-      id: data.jid
-    }  
-
-    let formData = new FormData();
-    formData.append('updateIntent', JSON.stringify(values))
-    submit(formData, { action: `/intents/${data.jid}`, method: 'post' })
-    setOpenEditUtterance(openEditUtterance => !openEditUtterance)
-  }  
+  const submit = useSubmit();
 
   const handleNewUtterance = async () => {
     let values = {
@@ -144,50 +96,46 @@ const UpdateFaq = (): JSX.Element => {
     setOpenNewUtterance(openNewUtterance => !openNewUtterance)
   }
 
+  const [list, setlist] = useState(data.context.utterances)
+  const [updateUtteranceValueChange, setUpdateUtteranceValueChange] = useState('')
+  const [openEditUtterance, setOpenEditUtterance] = useState(false)
+  const [updateUtteranceIdChange, setUpdateUtteranceIdChange] = useState('')
+  const [deleteUtteranceValue, setDeleteUtteranceValue] = useState('')
+  const [openUtteranceDialog, setOpenUtteranceDialog] = useState(false)
+  const [updateIntent, setUpdateIntent] = useState('')
 
-
-  const handleUtteranceDialogClose = () => {
-    setOpenUtteranceDialog(false)
-  }
 
   const handleUtteranceDelete = (item:any) => {
     setDeleteUtteranceValue(item)
     setOpenUtteranceDialog(true)
   }
 
-  const confirmHandleUtteranceDelete = () => {
-    const newList = list.filter((item: any, idx: any) => item !== deleteUtteranceValue);
-
+  const handleUtteranceEdit = (id: any) => {
+    console.log(id)
+    setUpdateUtteranceIdChange(id)
+    setOpenEditUtterance(openEditUtterance => !openEditUtterance)
+  }
+  
+  const handleUtteranceSave = () => {
+    list.splice(updateUtteranceIdChange, 1, updateUtteranceValueChange)
+    let newList = [...list]
+  
     let values = {
-      name_of_intent: data.context.name_of_intent,
+      name_of_intent: updateIntent,
       utterances: newList,
       id: data.jid
-    }
-    setlist(newList)
-
-
+    }  
+  
     let formData = new FormData();
     formData.append('updateIntent', JSON.stringify(values))
     submit(formData, { action: `/intents/${data.jid}`, method: 'post' })
+    setOpenEditUtterance(openEditUtterance => !openEditUtterance)
+  }  
+  
 
-    setOpenUtteranceDialog(false)
-  }
-
-
-  const handleIntentDelete = () => {
-    let values = {
-      id: data.jid
-    }
-
-    let formData = new FormData();
-    formData.append('deleteIntent', JSON.stringify(values))
-    submit(formData, { action: `/intents/${data.jid}`, method: 'post' })
-    setOpenIntentDialog(false)
-  }
 
   return (
     <Box bgcolor={'alternate.main'}>
-      {data && <pre>{JSON.stringify(data, null, 1)}</pre>}
       <Container maxWidth={800}>
         <Grid
           container
@@ -204,7 +152,7 @@ const UpdateFaq = (): JSX.Element => {
                 fontWeight: 700,
               }}
             >
-              Intents
+              New Anchor Group
             </Typography>
           </Grid>
 
@@ -218,61 +166,38 @@ const UpdateFaq = (): JSX.Element => {
         </Grid>
 
         <Card sx={{ p: { xs: 4, md: 6 } }}>
-          <Form method='post'>
-            <Grid container spacing={4}>
 
-              <Grid item xs={12}>
-                <Typography variant={'h6'}>
-                  Intent
+          <Form method='post'>
+            {/* <Grid container spacing={4}> */}
+
+            <Grid item xs={12}
+              container
+              spacing={2}
+              sx={{ px: { xs: 2, md: 3 } }}
+              direction="row"
+            >
+
+              <Grid item xs={10}>
+                <Typography variant={'subtitle2'} sx={{ marginBottom: 2 }}>
+                  Anchor Group
                 </Typography>
               </Grid>
 
-              <Grid item xs={12}
-                container
-                spacing={2}
-                sx={{ px: { xs: 2, md: 3 } }}
-                direction="row"
-              >
-                {
-                  openEditIntent
-                    ?
-                    <Grid item xs={10}>
-                      <TextField
-                        label="Intent *"
-                        variant="outlined"
-                        name={'name_of_intent'}
-                        fullWidth
-                        defaultValue={intent}
-                        onChange={event => setUpdateIntent(event.target.value)}
-                      />
-                    </Grid>
-                    :
-                    <Grid item xs={10}>
-                      <Box marginLeft={2}>
-                        {data.context.name_of_intent}
-                      </Box>
-                    </Grid>
-                }
-
-                <Grid item xs={2}>
-                  <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 'auto' }}>
-                    <Button variant="outlined" component="label" onClick={handleIntentEdit}>
-                      {openEditIntent ? "cancel" : "Edit"}
-                    </Button>
-                    {
-                      openEditIntent
-                        ?
-                        <Button variant="contained" color="primary" disabled={!updateIntent} onClick={handleIntentSave}>
-                          save
-                        </Button>
-                        :
-                        <IconButton color="primary" aria-label="delete" component="label" onClick={()=>setOpenIntentDialog(true)}>
-                          <DeleteIcon />
-                        </IconButton>
-                    }
-                  </Stack>
-                </Grid>
+              <Grid item xs={10}>
+                <TextField
+                  label="Anchor Group*"
+                  variant="outlined"
+                  name={'anchor'}
+                  fullWidth
+                />
               </Grid>
+
+              <Grid item xs={2}>
+                <Button size={'large'} variant={'contained'} component="label">
+                  Save
+                </Button>
+              </Grid>
+
 
               <Grid item xs={12}
                 container
@@ -283,6 +208,8 @@ const UpdateFaq = (): JSX.Element => {
                 <Typography variant={'h6'}>
                   Utterance
                 </Typography>
+
+
                 {
                   openNewUtterance
                     ?
@@ -311,7 +238,10 @@ const UpdateFaq = (): JSX.Element => {
               </Grid>}
 
 
-              {list && list.map((item: any, idx: any) => (
+            </Grid>
+  
+
+            {list && list.map((item: any, idx: any) => (
                 <Grid container spacing={2} key={idx} mt={2} sx={{ px: { xs: 2, md: 3 } }}>
                   {
                     openEditUtterance && updateUtteranceIdChange == idx
@@ -368,80 +298,19 @@ const UpdateFaq = (): JSX.Element => {
 
                 </Grid>
 
+
+
+
+
               ))}
 
-              <Input
-                name='id'
-                value={data.jid}
-                type="hidden"
-              />
-              {/* <Grid item container xs={12}>
-                <Box
-                  display="flex"
-                  flexDirection={{ xs: 'column', sm: 'row' }}
-                  alignItems={{ xs: 'right', sm: 'center' }}
-                  justifyContent="flex-end"
-                  width={1}
-                  maxWidth={600}
-                  margin={'0 auto'}
-                >
-                  <Button size={'large'} variant={'contained'} type={'submit'}>
-                    Update
-                  </Button>
-                </Box>
-              </Grid> */}
-            </Grid>
-          </Form>
-        </Card>
-      </Container>
+          {/* </Grid> */}
 
-
-      <Dialog
-        open={openUtteranceDialog}
-        onClose={handleUtteranceDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-        Would you like to delete?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {deleteUtteranceValue}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleUtteranceDialogClose}>Cancel</Button>
-          <Button onClick={confirmHandleUtteranceDelete} autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-
-      <Dialog
-        open={openIntentDialog}
-        onClose={handleUtteranceDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-        Would you like to delete this intent and utterances?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {data.context.name_of_intent}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={()=>setOpenIntentDialog(false)}>Cancel</Button>
-          <Button onClick={handleIntentDelete} autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        </Form>
+      </Card>
+    </Container>
+    </Box >
   );
 };
 
-export default UpdateFaq;
+export default NewFaq;
