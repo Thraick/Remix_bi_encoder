@@ -50,19 +50,19 @@ export const loader: LoaderFunction = async ({ params }) => {
   }
 }
 
-export const action: ActionFunction = async ({ request }) => {
+// export const action: ActionFunction = async ({ request }) => {
 
-  const formData = await request.formData();
-  let data = Object.fromEntries(formData);
-  console.log(data)
+//   const formData = await request.formData();
+//   let data = Object.fromEntries(formData);
+//   console.log(data)
 
-   json({},{
-    headers: {
-      "Set-Cookie": await selectedIntent.serialize(data),
-    },
-  });
-  return redirect('intents')   
-};
+//    json({},{
+//     headers: {
+//       "Set-Cookie": await selectedIntent.serialize(data),
+//     },
+//   });
+//   return redirect('intents')   
+// };
 
 
 // const UpdateFaq = (): JSX.Element => {
@@ -155,7 +155,7 @@ const Main = ({
             </Grid>
 
             <Card sx={{ p: { xs: 4, md: 6 } }}>
-              <Form method='post' action="intents">
+              <Form method='post' action="dintents">
                 <Grid
                   container
                   direction="column"
