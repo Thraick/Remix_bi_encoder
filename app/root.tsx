@@ -11,8 +11,8 @@ import { withEmotionCache } from "@emotion/react";
 import React from "react";
 
 import ClientStyleContext from "./MUI_style/ClientStyleContext";
-import useEnhancedEffect from "@mui/material/utils/useEnhancedEffect";
-
+// import useEnhancedEffect from "@mui/material/utils/useEnhancedEffect";
+import { unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/material';
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -35,20 +35,20 @@ const Document = withEmotionCache(({ children, title }: DocumentProps, emotionCa
   const clientStyleData = React.useContext(ClientStyleContext);
 
   // Only executed on client
-  // useEnhancedEffect(() => {
-  //   // re-link sheet container
-  //   emotionCache.sheet.container = document.head;
-  //   // re-inject tags
-  //   const tags = emotionCache.sheet.tags;
-  //   emotionCache.sheet.flush();
-  //   tags.forEach((tag) => {
-  //     // eslint-disable-next-line no-underscore-dangle
-  //     (emotionCache.sheet as any)._insertTag(tag);
-  //   });
-  //   // reset cache to reapply global styles
-  //   clientStyleData.reset();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  useEnhancedEffect(() => {
+    // re-link sheet container
+    emotionCache.sheet.container = document.head;
+    // re-inject tags
+    const tags = emotionCache.sheet.tags;
+    emotionCache.sheet.flush();
+    tags.forEach((tag) => {
+      // eslint-disable-next-line no-underscore-dangle
+      (emotionCache.sheet as any)._insertTag(tag);
+    });
+    // reset cache to reapply global styles
+    clientStyleData.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <html lang="en">
